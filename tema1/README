@@ -1,0 +1,82 @@
+/* Anghel Ionela-Carmen 332CB */
+
+/* Tema 1 - APD */
+
+Fisireul tema1.h contine structura de argumente ce trebuie data thredurilor
+si headerele necesare pentru utilizarea structurilor din c++.
+
+Fisierul tema1.cpp contine urmatoarele functii:
+
+/* multiply */
+- realizeaza ridicarea unui nr dat la o putere data
+- folosita pentru aflarea daca un numar este putere perfecta
+
+/* isPP */
+- primeste un numar si un exponent si returneaza true daca n este putere perfecta
+de exponent exp
+- pentru un  numar negativ sau 0 se returneaza false, iar pentru 1 true
+- pentru orice alt numar se realizeaza o cautare binara pentru descoperirea unui 
+numar cat mai apropiat de o posibila solutie, cu o eroare permisa de 1e-6
+- dupa gasirea unei posibile solutii se verifica daca partea sa intreaga + 1, 
+ridicata la putere va da numarul initial (se pierde din precizie la pasul anterior)
+- daca partea intreaga + 1 nu este pp, se verifica partea intreaga (fata +1)
+- daca ambele verificari esueaza, atunci numarul initial primit de functie nu este 
+putere perfecta si se va returna false, altfel true
+- inspiratie solutie: https://www.youtube.com/watch?v=WjpswYrS2nY&ab_channel=takeUforward
+
+/* mapper */
+- functie apelata de threadurile de map
+- primeste numele fisierul din care citeste si numarul de reduceri (Nexp) pentru
+a verifica numarul necesar de exponenti
+- returneaza un map intre exponent si o lista de numere ce sunt puteri perfecte
+pentru acel exponent
+- citeste datele din fisier si le retine intr-o lista
+- pentru fiecare exponent creaza o lista ce va contine puterile sale perfecte si 
+itereaza prin lista de numere pentru a face verificarea
+
+/* reducer */
+- functie apelata de threadurile de reduce
+- primeste exponentul de care se ocupa si o lista de liste partiale pentru 
+exponentul sau 
+- parcurge fiecare lista si adauga la o lista auxiliara toate numerele nedublicate
+- creaza un fisier out cu numele corespunzator si scrie in el dimensiunea listei
+auxiliare create
+
+/* f */
+- este functia de pornire a threadurilor
+- primeste ca argument o structura ce contine datele necesare procesarii datelor:
+    + id-ul threadului
+    + numarul de mapperi
+    + numarul de reduceri
+    + bariera
+    + lacatul
+    + coada de fisire de citire
+    + map-ul general pentru solutiile partiale
+- argumentele primite sunt convertite (cele necesare pt usurarea codului)
+- daca id-ul threadului este mai mic decat numarul de mapperi, atunci threadul 
+va functiona ca un thread mapper, identic pentru threadurile reducer
+- daca mai exista fisiere de citit, se aplica lacat pe sectiunea de cod pentru ca
+threadurile sa nu se bata sau sa proceseze aceleasi fisiere, si se optine fisierul
+de citire si de sterge acesta din coada, se da unlock la mutex
+- daca functia a reusit sa obtina fisierul (exista posibilitatea ca mai multe 
+threaduri sa vada ca mai exista un fisier de citit in acelasi timp, insa fisierul
+sa fie luat de un alt thread, atunci threadul actual nu a obtinut fisierul chiar 
+daca a intrat in loopul de citire), atunci se realizeaza map pe fisierul dat
+- se aplic din nou mutex pentru ca thredurile sa nu scrie simultan in listele 
+partiale si se adauga rezultatul partial la gramada generala
+- la bariera se asteapta ca toate threadurile de map sa isi termine treaba, apoi 
+se trece la cele de reduce
+- pentru fiecare reducer este apelata functia de reduce cu exponentul corespunzator
+si lista de liste partiale pentru a fi procesate
+
+/* main */
+- converteste argumentele pentru a obtine datele de intrare
+- construieste o coada ce contine numele fisierelor de citit
+- construieste un map pentru solutile partiale (pentru fiecare exponent)
+- se initializeaza mutexul si bariera
+- se pornesc N threaduri, unde N este maximul dintre numarul de mapperi si cel de
+reduceri (nu are sens pornirea a N_mapper + N_reduceri threaduri, deoarece o mare 
+parte vor sta de pomana pana terminarea partii de map, astfel un thread poate 
+actiona pe rand si ca thread mapper si reducer)
+- se construieste structura data ca argument pentru fiecare thread
+- la finalzarea threadurile se face join la toate si se distrug mutexul si bariera
