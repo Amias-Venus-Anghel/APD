@@ -1,0 +1,48 @@
+/* Anghel Ionela-Carmen 332CB */
+/* Tema 2 APD */
+
+Fisierul Tema2.java contine 3 clase:
+    o Tema2
+    o ThreadLevel1
+    o ThreadLevel2
+
+o Clasa Tema2
+    - createAndEmptyFile: metoda care creaza un fisier daca nu exista
+    deja, iar daca exista ii goleste continului, pentru a nu avea
+    ramasite ramase din rulari anterioare
+    - main:
+        - sunt parsate numele folderului si numarul de threaduri
+        - se creaza un thread pool executor pentru gestionarea threadurilor
+        de level 2, astfel el nu va permite rularea simultana a mai mult de
+        thread_num threaduri, indiferent ce thread de level 1 le porneste, si
+        permite stocarea taskurilor deasemenea
+        - se creaza/golesc fisierele de iesire
+        - se pornesc thread_num threaduri de level 1
+        - se asteapta finalizarea threadurilor de level 1
+
+o Clasa ThreadLevel1
+    - constructorul pdeschide fisierul de intrare orders.txt si creaza un
+    buffer reader (daca nu exista deja) static pentru a gestiona citirea
+    sincrona din fisier a tuturor threadurilor de level 1
+    - run:
+        - se va citi din fisierul de intrare, daca linia citita este nula,
+        se intrerupe while-ul si se inchide executorul. executia threadului
+        de level 1 se incheie
+        - se desparte linia citita pentru a extrage parametrii necesari
+        - se adauga cate un task in executor pentru fiecare produs ce trebuie
+        procesat, taskul primeste numele comenzii si numarul produsului
+        - se asteapta terminarea tuturor taskurilor din executor, asa ne asiguram
+        ca comanda va fi marcata ca trimisa doar dupa ce toate produsele sale sunt
+        trimise
+        - dupa procesare, se marcheaza comanda ca procesata in fisierul de iesire
+    - appendToFile: metoda care scrie in continuare intr-un fisier fara a suprascrie
+
+o Clasa ThreadLevel2
+    - Task:
+        - primeste comanda si numarul produsului de cautat
+        - va parcurge fisierul de intrare al produselor si va numara cu ajutorul
+        item_nr produsele gasite pentru comanda data, cand numarul acesta ajunge
+        0, threadul a gasit produsul nr item_nr si il proceseaza, astfel nu exita
+        2 threaduri care sa proceseze acelasi produs, si nu ne intereseaza daca
+        produsele anterioare ale comenzii au fost deja procesate sau nu
+    - appendToFile: metoda care scrie in continuare intr-un fisier fara a suprascrie

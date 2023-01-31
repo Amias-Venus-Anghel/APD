@@ -1,0 +1,9 @@
+SRC = Tema2.java
+
+build:
+	cp src/$(SRC) $(SRC)
+	javac $(SRC)
+
+clean:
+	rm -rf *.class
+	rm -rf *_out.txt

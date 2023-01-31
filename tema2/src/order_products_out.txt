@@ -1,0 +1,8 @@
+d,d1,shipped
+c,c1,shipped
+a,a1,shipped
+b,b1,shipped
+b,b2,shipped
+c,c3,shipped
+d,d2,shipped
+c,c2,shipped
